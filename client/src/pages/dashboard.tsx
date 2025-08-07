@@ -9,6 +9,7 @@ import { Calendar, Clock, User, Plus, Phone, Mail, MapPin } from "lucide-react";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import type { AppointmentWithDetails } from "@shared/schema";
 
 export default function Dashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -30,7 +31,7 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
+  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery<AppointmentWithDetails[]>({
     queryKey: ["/api/appointments"],
     retry: false,
   });
@@ -82,11 +83,11 @@ export default function Dashboard() {
     );
   }
 
-  const upcomingAppointments = appointments.filter((apt: any) => 
+  const upcomingAppointments = appointments.filter((apt) => 
     new Date(apt.appointmentDate) >= new Date() && apt.status !== 'cancelled'
   );
 
-  const pastAppointments = appointments.filter((apt: any) => 
+  const pastAppointments = appointments.filter((apt) => 
     new Date(apt.appointmentDate) < new Date() || apt.status === 'completed'
   );
 

@@ -9,6 +9,7 @@ The application provides a complete appointment management workflow including se
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Database preference: AWS RDS instead of Neon for production reliability.
 
 ## System Architecture
 
@@ -22,7 +23,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Backend Architecture
 - **Framework**: Express.js with TypeScript in ESM module format
-- **Database ORM**: Drizzle ORM with PostgreSQL dialect for type-safe database operations
+- **Database ORM**: Drizzle ORM with node-postgres adapter for type-safe database operations
 - **API Design**: RESTful API endpoints following standard HTTP methods and status codes
 - **Session Management**: Express sessions with PostgreSQL storage using connect-pg-simple
 - **Error Handling**: Centralized error handling middleware with proper HTTP status codes
@@ -54,8 +55,9 @@ Preferred communication style: Simple, everyday language.
 ## External Dependencies
 
 ### Database Service
-- **Neon Database**: PostgreSQL-compatible serverless database for production deployment
-- **Connection Pooling**: @neondatabase/serverless with WebSocket support for edge environments
+- **AWS RDS**: PostgreSQL database instance hosted on Amazon Web Services
+- **Connection Pooling**: Standard pg (node-postgres) driver with connection pool management
+- **SSL Support**: Configured for production environments with SSL certificate validation
 
 ### Authentication Provider
 - **Replit Auth**: OpenID Connect authentication service integrated with Replit platform

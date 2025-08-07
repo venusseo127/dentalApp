@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import type { Dentist } from "@shared/schema";
 
 interface DentistSelectionProps {
   selectedDentistId: string;
@@ -8,7 +9,7 @@ interface DentistSelectionProps {
 }
 
 export default function DentistSelection({ selectedDentistId, onDentistSelect }: DentistSelectionProps) {
-  const { data: dentists = [], isLoading } = useQuery({
+  const { data: dentists = [], isLoading } = useQuery<Dentist[]>({
     queryKey: ["/api/dentists"],
   });
 
@@ -30,7 +31,7 @@ export default function DentistSelection({ selectedDentistId, onDentistSelect }:
       <h3 className="text-xl font-semibold text-secondary-900 mb-4">Select Dentist</h3>
       <RadioGroup value={selectedDentistId} onValueChange={onDentistSelect}>
         <div className="space-y-3">
-          {dentists.map((dentist: any) => (
+          {dentists.map((dentist) => (
             <div key={dentist.id}>
               <RadioGroupItem value={dentist.id} id={dentist.id} className="sr-only" />
               <Label

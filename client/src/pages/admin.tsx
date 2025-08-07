@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Users, UserRound, Clock, Plus, Download, Settings, Cog } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import type { AppointmentWithDetails, Dentist } from "@shared/schema";
 
 export default function Admin() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -27,17 +28,22 @@ export default function Admin() {
     }
   }, [isAuthenticated, isLoading, user, toast]);
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<{
+    todayAppointments: number;
+    totalPatients: number;
+    activeDentists: number;
+    totalAppointments: number;
+  }>({
     queryKey: ["/api/admin/stats"],
     retry: false,
   });
 
-  const { data: appointments = [] } = useQuery({
+  const { data: appointments = [] } = useQuery<AppointmentWithDetails[]>({
     queryKey: ["/api/appointments"],
     retry: false,
   });
 
-  const { data: dentists = [] } = useQuery({
+  const { data: dentists = [] } = useQuery<Dentist[]>({
     queryKey: ["/api/dentists"],
     retry: false,
   });
@@ -61,7 +67,7 @@ export default function Admin() {
   }
 
   const today = new Date().toISOString().split('T')[0];
-  const todayAppointments = appointments.filter((apt: any) => 
+  const todayAppointments = appointments.filter((apt) => 
     apt.appointmentDate === today
   );
 

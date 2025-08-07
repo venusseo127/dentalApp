@@ -5,15 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Clock, User } from "lucide-react";
 import { Link } from "wouter";
+import type { AppointmentWithDetails } from "@shared/schema";
 
 export default function Home() {
   const { user } = useAuth();
 
-  const { data: appointments = [] } = useQuery({
+  const { data: appointments = [] } = useQuery<AppointmentWithDetails[]>({
     queryKey: ["/api/appointments"],
   });
 
-  const upcomingAppointments = appointments.filter((apt: any) => 
+  const upcomingAppointments = appointments.filter((apt) => 
     new Date(apt.appointmentDate) >= new Date()
   ).slice(0, 3);
 
@@ -24,7 +25,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-secondary-900">
-            Welcome back, {user?.firstName || 'Patient'}!
+            Welcome back, {(user as any)?.firstName || 'Patient'}!
           </h1>
           <p className="text-gray-600 mt-2">Here's your dental care overview</p>
         </div>
@@ -69,7 +70,7 @@ export default function Home() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {upcomingAppointments.map((appointment: any) => (
+                    {upcomingAppointments.map((appointment) => (
                       <div
                         key={appointment.id}
                         className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
@@ -80,10 +81,10 @@ export default function Home() {
                           </div>
                           <div>
                             <div className="font-medium text-secondary-900">
-                              {appointment.service.name}
+                              {(appointment as any).service?.name || 'Service'}
                             </div>
                             <div className="text-sm text-gray-600">
-                              with {appointment.dentist.name}
+                              with {(appointment as any).dentist?.name || 'Dentist'}
                             </div>
                             <div className="text-sm text-gray-500">
                               {new Date(appointment.appointmentDate).toLocaleDateString()} at{" "}
@@ -93,7 +94,7 @@ export default function Home() {
                         </div>
                         <div className="text-right">
                           <div className="text-sm font-medium text-primary-600">
-                            ${appointment.service.price}
+                            ${(appointment as any).service?.price || '0'}
                           </div>
                         </div>
                       </div>

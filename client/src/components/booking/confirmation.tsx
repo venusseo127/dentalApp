@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import type { Service, Dentist } from "@shared/schema";
 
 interface BookingData {
   serviceId: string;
@@ -16,16 +17,16 @@ interface ConfirmationProps {
 }
 
 export default function Confirmation({ bookingData, onNotesChange }: ConfirmationProps) {
-  const { data: services = [] } = useQuery({
+  const { data: services = [] } = useQuery<Service[]>({
     queryKey: ["/api/services"],
   });
 
-  const { data: dentists = [] } = useQuery({
+  const { data: dentists = [] } = useQuery<Dentist[]>({
     queryKey: ["/api/dentists"],
   });
 
-  const selectedService = services.find((s: any) => s.id === bookingData.serviceId);
-  const selectedDentist = dentists.find((d: any) => d.id === bookingData.dentistId);
+  const selectedService = services.find((s) => s.id === bookingData.serviceId);
+  const selectedDentist = dentists.find((d) => d.id === bookingData.dentistId);
 
   const formatTime = (time: string) => {
     const [hours, minutes] = time.split(':');

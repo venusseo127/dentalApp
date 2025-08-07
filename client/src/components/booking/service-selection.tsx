@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import type { Service } from "@shared/schema";
 
 interface ServiceSelectionProps {
   selectedServiceId: string;
@@ -8,7 +9,7 @@ interface ServiceSelectionProps {
 }
 
 export default function ServiceSelection({ selectedServiceId, onServiceSelect }: ServiceSelectionProps) {
-  const { data: services = [], isLoading } = useQuery({
+  const { data: services = [], isLoading } = useQuery<Service[]>({
     queryKey: ["/api/services"],
   });
 
@@ -30,7 +31,7 @@ export default function ServiceSelection({ selectedServiceId, onServiceSelect }:
       <h3 className="text-xl font-semibold text-secondary-900 mb-4">Select Service</h3>
       <RadioGroup value={selectedServiceId} onValueChange={onServiceSelect}>
         <div className="space-y-3">
-          {services.map((service: any) => (
+          {services.map((service) => (
             <div key={service.id}>
               <RadioGroupItem value={service.id} id={service.id} className="sr-only" />
               <Label
