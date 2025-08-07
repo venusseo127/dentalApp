@@ -1,0 +1,199 @@
+PRD: Dental Office Online Scheduling System
+1. Overview
+Objective:
+Build a web-based application for a dental clinic that allows patients to book, manage, and view dental appointments online. The system will serve both patients and clinic staff and will be deployed on scalable AWS infrastructure, with a focus on clean architecture, modularity, and operational efficiency.
+
+2. User Roles
+Patient
+
+Register, log in, and manage personal information
+
+View dental services
+
+Book, reschedule, or cancel appointments
+
+Admin / Clinic Staff
+
+Manage dentist schedules and availability
+
+View and manage all appointments
+
+3. Functional Requirements
+3.1 Frontend (Client-Side Web App)
+Tech: Framework-agnostic (e.g., React recommended).
+UI Library: Use shadcn/ui for all components.
+
+Key Pages & Components
+Home Page
+
+Display clinic info, services, and a prominent “Book Appointment” CTA
+
+Booking Page
+
+Select dentist, choose date and time slot from availability
+
+Confirm and submit appointment booking
+
+User Dashboard
+
+View upcoming and past appointments
+
+Edit, reschedule, or cancel bookings
+
+Manage personal profile
+
+Authentication Pages
+
+Register / Login / Logout / Password reset flows
+
+Admin Panel (optional but recommended)
+
+Manage dentists and their time slots
+
+View appointment logs
+
+3.2 Backend (Server-Side API)
+Architecture: RESTful API. Modular service-based code structure.
+
+Core Functionalities
+User Authentication
+
+Secure registration, login, and session handling (e.g., JWT)
+
+Password hashing, email verification (optional)
+
+Appointments Management
+
+Create, read, update, and cancel appointments
+
+Filter appointments by user or dentist
+
+Dentist Schedule Management
+
+Set and update dentist availability
+
+Profile Management
+
+Edit name, email, phone, password
+
+Example Endpoints
+Endpoint	Method	Description
+/auth/register	POST	Create a new patient account
+/auth/login	POST	Login user and return token
+/appointments	POST	Book a new appointment
+/appointments/:id	PUT	Reschedule appointment
+/appointments/:id	DELETE	Cancel appointment
+/appointments/user/:id	GET	Get a user’s appointments
+/dentists	GET	List dentists
+/availability/:dentistId	GET	Get available slots
+
+4. Database Design
+Database:
+Use Amazon RDS (PostgreSQL or MySQL) for managing relational data.
+
+Schema Overview
+Users Table
+id (UUID, PK)
+
+name
+
+email (unique)
+
+password_hash
+
+phone
+
+created_at, updated_at
+
+Dentists Table
+id (UUID, PK)
+
+name
+
+specialization
+
+created_at, updated_at
+
+Appointments Table
+id (UUID, PK)
+
+user_id (FK → Users)
+
+dentist_id (FK → Dentists)
+
+appointment_time (datetime)
+
+status (Scheduled, Cancelled, Rescheduled, Completed)
+
+created_at, updated_at
+
+Availability Table (Optional for flexibility)
+id (UUID)
+
+dentist_id (FK)
+
+available_date (date)
+
+time_slots (json/text array)
+
+5. Deployment & Infrastructure
+5.1 Containerization & Kubernetes
+Containerize backend and frontend using Docker
+
+Deploy to AWS EKS (Elastic Kubernetes Service)
+
+Use Kubernetes Secrets, ConfigMaps, and Ingress for secure routing and config
+
+5.2 AWS Services (Required)
+Component	AWS Service	Purpose
+Database	Amazon RDS	Relational data store for users, appointments, and dentists
+Static Assets	Amazon S3	Store frontend build artifacts, images, and backups
+Orchestration	Amazon EKS	Run containers with autoscaling and service discovery
+DNS & TLS	Route 53 + ACM	Domain routing and SSL certificate management
+Monitoring	CloudWatch	Monitor logs, metrics, and alerts
+Secrets	AWS Secrets Manager	Secure storage for DB creds and auth tokens
+Notifications	SES or SNS (Optional)	Email/SMS alerts for appointment reminders
+
+6. Optional Enhancements
+Appointment Reminders via email or SMS
+
+Admin Role Management for dentist and appointment visibility
+
+Rate Limiting to prevent abuse of API endpoints
+
+Audit Logging for appointment changes or deletions
+
+Multi-language Support for diverse patient demographics
+
+7. Non-Functional Requirements
+Scalability: Autoscaling with Kubernetes and database read replicas (if needed)
+
+Security: Encrypted data in transit (HTTPS) and at rest (RDS encryption)
+
+Reliability: Multi-AZ deployment for high availability
+
+Performance: Responsive UI, optimized queries, and minimal downtime
+
+Compliance: HIPAA-aligned if applicable for region or market
+
+8. UI/UX Guidelines
+Follow consistent UI design using shadcn/ui
+
+Mobile-first and responsive design
+
+Prioritize accessibility (WCAG 2.1 AA standards)
+
+9. Documentation Requirements
+The project must include:
+
+README with Setup Instructions
+
+API Documentation (Swagger/OpenAPI)
+
+Database ERD
+
+System Architecture Diagram
+
+Deployment Guide (Kubernetes & AWS Setup)
+
+Assumptions and Limitations
