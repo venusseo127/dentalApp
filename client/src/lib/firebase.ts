@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -21,5 +21,11 @@ export const db = getFirestore(app);
 
 // Google Auth Provider
 export const googleProvider = new GoogleAuthProvider();
+
+// Authentication functions
+export const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
+export const signInWithEmail = (email: string, password: string) => signInWithEmailAndPassword(auth, email, password);
+export const signUpWithEmail = (email: string, password: string) => createUserWithEmailAndPassword(auth, email, password);
+export const logout = () => signOut(auth);
 
 export default app;
