@@ -10,8 +10,14 @@ import type { AppointmentWithDetails } from "@shared/schema";
 export default function Home() {
   const { user } = useAuth();
 
-  const { data: appointments = [] } = useQuery<AppointmentWithDetails[]>({
-    queryKey: ["/api/appointments"],
+  const { data: appointments = [] } = useQuery<any[]>({
+    queryKey: ["appointments", user?.uid],
+    queryFn: async () => {
+      if (!user?.uid) return [];
+      const { appointmentService } = await import("@/lib/firestore");
+      return await appointmentService.getByUserId(user.uid);
+    },
+    enabled: !!user?.uid,
   });
 
   const upcomingAppointments = appointments.filter((apt) => 

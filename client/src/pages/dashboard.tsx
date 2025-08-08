@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Calendar, Clock, User, Plus, Phone, Mail, MapPin } from "lucide-react";
 import { Link } from "wouter";
-import { apiRequest } from "@/lib/queryClient";
+import { appointmentService } from "@/lib/firestore";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { AppointmentWithDetails } from "@shared/schema";
 
@@ -31,23 +31,25 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery<AppointmentWithDetails[]>({
-    queryKey: ["/api/appointments"],
-    retry: false,
+  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery<any[]>({
+    queryKey: ["appointments", user?.uid],
+    queryFn: async () => {
+      if (!user?.uid) return [];
+      return await appointmentService.getByUserId(user.uid);
+    },
+    enabled: !!user?.uid,
   });
 
   const cancelAppointmentMutation = useMutation({
     mutationFn: async (appointmentId: string) => {
-      await apiRequest("PUT", `/api/appointments/${appointmentId}`, {
-        status: "cancelled"
-      });
+      await appointmentService.update(appointmentId, { status: "cancelled" });
     },
     onSuccess: () => {
       toast({
         title: "Success",
         description: "Appointment cancelled successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
     },
     onError: (error: Error) => {
       if (isUnauthorizedError(error)) {
@@ -56,9 +58,8 @@ export default function Dashboard() {
           description: "You are logged out. Logging in again...",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
+        // User will need to login again with Firebase
+        window.location.reload();
         return;
       }
       toast({

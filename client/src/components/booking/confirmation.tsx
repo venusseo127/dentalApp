@@ -18,11 +18,19 @@ interface ConfirmationProps {
 
 export default function Confirmation({ bookingData, onNotesChange }: ConfirmationProps) {
   const { data: services = [] } = useQuery<Service[]>({
-    queryKey: ["/api/services"],
+    queryKey: ["services"],
+    queryFn: async () => {
+      const { serviceService } = await import("@/lib/firestore");
+      return await serviceService.getAll();
+    },
   });
 
   const { data: dentists = [] } = useQuery<Dentist[]>({
-    queryKey: ["/api/dentists"],
+    queryKey: ["dentists"],
+    queryFn: async () => {
+      const { dentistService } = await import("@/lib/firestore");
+      return await dentistService.getAll();
+    },
   });
 
   const selectedService = services.find((s) => s.id === bookingData.serviceId);

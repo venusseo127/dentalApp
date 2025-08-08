@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import LoginButton from "@/components/auth/login-button";
 import Navigation from "@/components/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import Confirmation from "@/components/booking/confirmation";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { appointmentService } from "@/lib/firestore";
 import { useLocation } from "wouter";
 
 interface BookingData {
@@ -37,15 +38,19 @@ export default function Booking() {
 
   const createAppointmentMutation = useMutation({
     mutationFn: async (data: BookingData) => {
-      const response = await apiRequest("POST", "/api/appointments", data);
-      return response.json();
+      if (!user?.uid) throw new Error("User not authenticated");
+      return await appointmentService.create({
+        ...data,
+        userId: user.uid,
+        status: "scheduled",
+      });
     },
     onSuccess: () => {
       toast({
         title: "Success!",
         description: "Your appointment has been booked successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
       setLocation("/dashboard");
     },
     onError: (error: Error) => {
@@ -66,9 +71,7 @@ export default function Booking() {
             <CardContent className="pt-6 text-center">
               <h2 className="text-2xl font-bold mb-4">Please Log In</h2>
               <p className="text-gray-600 mb-6">You need to be logged in to book an appointment.</p>
-              <Button onClick={() => window.location.href = "/api/login"}>
-                Log In
-              </Button>
+              <LoginButton />
             </CardContent>
           </Card>
         </div>

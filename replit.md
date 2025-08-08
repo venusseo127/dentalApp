@@ -9,7 +9,8 @@ The application provides a complete appointment management workflow including se
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-Database preference: AWS RDS instead of Neon for production reliability.
+Database preference: Firebase Firestore for real-time updates and easy scalability.
+Authentication preference: Firebase Auth with Google sign-in for secure and user-friendly authentication.
 
 ## System Architecture
 
@@ -22,23 +23,23 @@ Database preference: AWS RDS instead of Neon for production reliability.
 - **Form Handling**: React Hook Form with Zod validation through @hookform/resolvers
 
 ### Backend Architecture
-- **Framework**: Express.js with TypeScript in ESM module format
-- **Database ORM**: Drizzle ORM with node-postgres adapter for type-safe database operations
-- **API Design**: RESTful API endpoints following standard HTTP methods and status codes
-- **Session Management**: Express sessions with PostgreSQL storage using connect-pg-simple
-- **Error Handling**: Centralized error handling middleware with proper HTTP status codes
+- **Framework**: Express.js with TypeScript serving as a minimal static file server
+- **Database Operations**: Client-side Firebase Firestore SDK for direct database operations
+- **API Design**: No server-side API - all data operations handled by Firebase on the client
+- **Real-time Data**: Firebase Firestore real-time listeners for live data updates
+- **Error Handling**: Client-side error handling with Firebase-specific error management
 
 ### Authentication System
-- **Provider**: Replit Auth using OpenID Connect (OIDC) protocol
-- **Session Storage**: PostgreSQL-backed sessions with configurable TTL
-- **Authorization**: Role-based access control (patient/admin) with middleware guards
-- **Security**: HTTP-only cookies, CSRF protection, and secure session configuration
+- **Provider**: Firebase Auth with Google sign-in authentication
+- **Client-side Authentication**: Real-time authentication state management using react-firebase-hooks
+- **Authorization**: Role-based access control using Firebase user email for admin access
+- **Security**: Firebase-managed authentication tokens and secure client-side auth state
 
 ### Database Design
-- **Schema**: Comprehensive relational schema including users, dentists, services, appointments, and availability
-- **Migrations**: Drizzle Kit for schema migrations and database versioning
-- **Relationships**: Proper foreign key constraints and table relationships
-- **Types**: Full TypeScript type generation from database schema using drizzle-zod
+- **NoSQL Database**: Firebase Firestore for real-time data synchronization
+- **Collections**: Document-based storage for users, dentists, services, appointments, and availability
+- **Real-time Updates**: Automatic data synchronization across all connected clients
+- **Types**: TypeScript interfaces for consistent data structures across frontend
 
 ### Booking Workflow
 - **Multi-step Process**: Service selection → Dentist selection → Date/time selection → Confirmation
@@ -55,13 +56,13 @@ Database preference: AWS RDS instead of Neon for production reliability.
 ## External Dependencies
 
 ### Database Service
-- **AWS RDS**: PostgreSQL database instance hosted on Amazon Web Services
-- **Connection Pooling**: Standard pg (node-postgres) driver with connection pool management
-- **SSL Support**: Configured for production environments with SSL certificate validation
+- **Firebase Firestore**: NoSQL document database with real-time synchronization
+- **Client SDK**: Firebase JavaScript SDK for direct client-to-database operations
+- **Offline Support**: Built-in offline capabilities with automatic sync when reconnected
 
 ### Authentication Provider
-- **Replit Auth**: OpenID Connect authentication service integrated with Replit platform
-- **Session Storage**: PostgreSQL session store for scalable session management
+- **Firebase Auth**: Google OAuth integration with secure token management
+- **Real-time Auth State**: Automatic authentication state synchronization across tabs and devices
 
 ### UI Component Library
 - **Radix UI**: Headless, accessible component primitives for complex UI interactions

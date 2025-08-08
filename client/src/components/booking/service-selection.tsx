@@ -10,7 +10,11 @@ interface ServiceSelectionProps {
 
 export default function ServiceSelection({ selectedServiceId, onServiceSelect }: ServiceSelectionProps) {
   const { data: services = [], isLoading } = useQuery<Service[]>({
-    queryKey: ["/api/services"],
+    queryKey: ["services"],
+    queryFn: async () => {
+      const { serviceService } = await import("@/lib/firestore");
+      return await serviceService.getAll();
+    },
   });
 
   if (isLoading) {

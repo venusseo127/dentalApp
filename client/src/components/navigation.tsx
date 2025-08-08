@@ -6,8 +6,10 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, User, Calendar, Settings, LogOut } from "lucide-react";
+import { ChevronDown, User, Calendar, Settings } from "lucide-react";
 import { Link } from "wouter";
+import LogoutButton from "@/components/auth/logout-button";
+import LoginButton from "@/components/auth/login-button";
 
 export default function Navigation() {
   const { user, isAuthenticated } = useAuth();
@@ -35,7 +37,7 @@ export default function Navigation() {
                   <Link href="/dashboard" className="text-secondary-900 hover:text-primary-500 font-medium">
                     Dashboard
                   </Link>
-                  {user?.role === 'admin' && (
+                  {user?.email === 'admin@example.com' && (
                     <Link href="/admin" className="text-secondary-900 hover:text-primary-500 font-medium">
                       Admin
                     </Link>
@@ -44,66 +46,34 @@ export default function Navigation() {
               </div>
             )}
           </div>
-          
+
           <div className="flex items-center space-x-4">
             {!isAuthenticated ? (
-              <>
-                <Button
-                  variant="ghost"
-                  onClick={() => window.location.href = "/api/login"}
-                  className="text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  Login
-                </Button>
-                <Button
-                  onClick={() => window.location.href = "/api/login"}
-                  className="bg-primary-500 text-white hover:bg-primary-600 transition-colors font-medium"
-                >
-                  Book Appointment
-                </Button>
-              </>
+              <LoginButton />
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-2">
-                    <img
-                      src={user?.profileImageUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face"}
-                      alt="User avatar"
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <span className="hidden md:inline text-secondary-900">
-                      {user?.firstName} {user?.lastName}
-                    </span>
+                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-primary-600" />
+                    </div>
+                    <span className="text-sm font-medium">{user?.displayName || user?.email}</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="flex items-center">
-                      <User className="mr-2 h-4 w-4" />
-                      My Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/booking" className="flex items-center">
+                  <Link href="/dashboard">
+                    <DropdownMenuItem>
                       <Calendar className="mr-2 h-4 w-4" />
-                      Book Appointment
-                    </Link>
-                  </DropdownMenuItem>
-                  {user?.role === 'admin' && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin" className="flex items-center">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Admin Panel
-                      </Link>
+                      <span>My Appointments</span>
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem 
-                    onClick={() => window.location.href = "/api/logout"}
-                    className="flex items-center text-red-600"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                  </Link>
+                  <DropdownMenuItem>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <LogoutButton variant="ghost" className="w-full justify-start p-0" />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

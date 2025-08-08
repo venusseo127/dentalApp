@@ -1,14 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 export function useAuth() {
-  const { data: user, isLoading } = useQuery({
-    queryKey: ["/api/auth/user"],
-    retry: false,
-  });
+  const [user, isLoading, error] = useAuthState(auth);
 
   return {
     user,
     isLoading,
     isAuthenticated: !!user,
+    error,
   };
 }

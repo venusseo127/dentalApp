@@ -38,14 +38,21 @@ export default function Admin() {
     retry: false,
   });
 
-  const { data: appointments = [] } = useQuery<AppointmentWithDetails[]>({
-    queryKey: ["/api/appointments"],
-    retry: false,
+  const { data: appointments = [] } = useQuery<any[]>({
+    queryKey: ["appointments"],
+    queryFn: async () => {
+      const { appointmentService } = await import("@/lib/firestore");
+      return await appointmentService.getAll();
+    },
+    enabled: !!user?.email && user.email === 'admin@example.com',
   });
 
-  const { data: dentists = [] } = useQuery<Dentist[]>({
-    queryKey: ["/api/dentists"],
-    retry: false,
+  const { data: dentists = [] } = useQuery<any[]>({
+    queryKey: ["dentists"],
+    queryFn: async () => {
+      const { dentistService } = await import("@/lib/firestore");
+      return await dentistService.getAll();
+    },
   });
 
   if (isLoading) {

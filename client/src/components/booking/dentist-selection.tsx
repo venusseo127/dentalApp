@@ -10,7 +10,11 @@ interface DentistSelectionProps {
 
 export default function DentistSelection({ selectedDentistId, onDentistSelect }: DentistSelectionProps) {
   const { data: dentists = [], isLoading } = useQuery<Dentist[]>({
-    queryKey: ["/api/dentists"],
+    queryKey: ["dentists"],
+    queryFn: async () => {
+      const { dentistService } = await import("@/lib/firestore");
+      return await dentistService.getAll();
+    },
   });
 
   if (isLoading) {
