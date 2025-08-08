@@ -41,8 +41,8 @@ export default function Admin() {
   const { data: appointments = [] } = useQuery<any[]>({
     queryKey: ["appointments"],
     queryFn: async () => {
-      const { appointmentService } = await import("@/lib/firestore");
-      return await appointmentService.getAll();
+      const { getAppointments } = await import("@/lib/firestore");
+      return await getAppointments();
     },
     enabled: !!user?.email && user.email === 'admin@example.com',
   });
@@ -50,8 +50,8 @@ export default function Admin() {
   const { data: dentists = [] } = useQuery<any[]>({
     queryKey: ["dentists"],
     queryFn: async () => {
-      const { dentistService } = await import("@/lib/firestore");
-      return await dentistService.getAll();
+      const { getDentists } = await import("@/lib/firestore");
+      return await getDentists();
     },
   });
 

@@ -14,8 +14,8 @@ export default function Home() {
     queryKey: ["appointments", user?.uid],
     queryFn: async () => {
       if (!user?.uid) return [];
-      const { appointmentService } = await import("@/lib/firestore");
-      return await appointmentService.getByUserId(user.uid);
+      const { getAppointmentsByUserId } = await import("@/lib/firestore");
+      return await getAppointmentsByUserId(user.uid);
     },
     enabled: !!user?.uid,
   });

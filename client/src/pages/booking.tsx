@@ -12,7 +12,7 @@ import Confirmation from "@/components/booking/confirmation";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { appointmentService } from "@/lib/firestore";
+
 import { useLocation } from "wouter";
 
 interface BookingData {
@@ -39,7 +39,8 @@ export default function Booking() {
   const createAppointmentMutation = useMutation({
     mutationFn: async (data: BookingData) => {
       if (!user?.uid) throw new Error("User not authenticated");
-      return await appointmentService.create({
+      const { createAppointment } = await import("@/lib/firestore");
+      return await createAppointment({
         ...data,
         userId: user.uid,
         status: "scheduled",

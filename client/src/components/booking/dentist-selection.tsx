@@ -12,8 +12,8 @@ export default function DentistSelection({ selectedDentistId, onDentistSelect }:
   const { data: dentists = [], isLoading } = useQuery<Dentist[]>({
     queryKey: ["dentists"],
     queryFn: async () => {
-      const { dentistService } = await import("@/lib/firestore");
-      return await dentistService.getAll();
+      const { getDentists } = await import("@/lib/firestore");
+      return await getDentists();
     },
   });
 

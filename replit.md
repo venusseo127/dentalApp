@@ -37,9 +37,12 @@ Authentication preference: Firebase Auth with Google sign-in for secure and user
 
 ### Database Design
 - **NoSQL Database**: Firebase Firestore for real-time data synchronization
+- **Collection-Based Architecture**: Uses modern collection reference pattern with `export const itemsCollection = collection(db, "items")`
+- **Function-Based Operations**: Individual functions for each operation (getItems, createItem, updateItem, deleteItem)
+- **Type-Safe Operations**: All functions use proper TypeScript interfaces with date conversion
 - **Collections**: Document-based storage for users, dentists, services, appointments, and availability
 - **Real-time Updates**: Automatic data synchronization across all connected clients
-- **Types**: TypeScript interfaces for consistent data structures across frontend
+- **Date Handling**: Proper Firestore Timestamp to Date conversion in all query functions
 
 ### Booking Workflow
 - **Multi-step Process**: Service selection → Dentist selection → Date/time selection → Confirmation

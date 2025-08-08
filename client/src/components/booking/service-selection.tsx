@@ -12,8 +12,8 @@ export default function ServiceSelection({ selectedServiceId, onServiceSelect }:
   const { data: services = [], isLoading } = useQuery<Service[]>({
     queryKey: ["services"],
     queryFn: async () => {
-      const { serviceService } = await import("@/lib/firestore");
-      return await serviceService.getAll();
+      const { getServices } = await import("@/lib/firestore");
+      return await getServices();
     },
   });
 

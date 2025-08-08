@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Calendar, Clock, User, Plus, Phone, Mail, MapPin } from "lucide-react";
 import { Link } from "wouter";
-import { appointmentService } from "@/lib/firestore";
+
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { AppointmentWithDetails } from "@shared/schema";
 
@@ -35,14 +35,16 @@ export default function Dashboard() {
     queryKey: ["appointments", user?.uid],
     queryFn: async () => {
       if (!user?.uid) return [];
-      return await appointmentService.getByUserId(user.uid);
+      const { getAppointmentsByUserId } = await import("@/lib/firestore");
+      return await getAppointmentsByUserId(user.uid);
     },
     enabled: !!user?.uid,
   });
 
   const cancelAppointmentMutation = useMutation({
     mutationFn: async (appointmentId: string) => {
-      await appointmentService.update(appointmentId, { status: "cancelled" });
+      const { updateAppointment } = await import("@/lib/firestore");
+      await updateAppointment(appointmentId, { status: "cancelled" });
     },
     onSuccess: () => {
       toast({

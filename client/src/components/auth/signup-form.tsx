@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { signUpWithEmail, signInWithGoogle } from "@/lib/firebase";
+import { createUser } from "@/lib/firestore";
 import { Link, useLocation } from "wouter";
 import { UserPlus, LogIn, ArrowLeft } from "lucide-react";
 
@@ -96,8 +97,7 @@ export default function SignupForm() {
       const userCredential = await signUpWithEmail(formData.email, formData.password);
       
       // Store additional user data in Firestore
-      const { userService } = await import("@/lib/firestore");
-      await userService.create({
+      await createUser({
         uid: userCredential.user.uid,
         email: formData.email,
         firstName: formData.firstName,
@@ -133,8 +133,7 @@ export default function SignupForm() {
       const userCredential = await signInWithGoogle();
       
       // Store basic user data in Firestore for Google users
-      const { userService } = await import("@/lib/firestore");
-      await userService.create({
+      await createUser({
         uid: userCredential.user.uid,
         email: userCredential.user.email || "",
         firstName: userCredential.user.displayName?.split(" ")[0] || "",

@@ -1,4 +1,4 @@
-import { serviceService, dentistService } from "./firestore";
+import { createService, createDentist } from "./firestore";
 
 // Initialize sample data for Firebase
 export async function initializeSampleData() {
@@ -68,12 +68,12 @@ export async function initializeSampleData() {
 
     // Add services to Firestore
     for (const service of services) {
-      await serviceService.create(service);
+      await createService(service);
     }
 
     // Add dentists to Firestore
     for (const dentist of dentists) {
-      await dentistService.create(dentist);
+      await createDentist(dentist);
     }
 
     console.log("Sample data initialized successfully");
