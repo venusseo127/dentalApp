@@ -11,6 +11,7 @@ import Booking from "@/pages/booking";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
+import Signup from "@/pages/signup";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -18,6 +19,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
+      <Route path="/signup" component={Signup} />
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (

@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { signInWithGoogle, signInWithEmail, signUpWithEmail } from "@/lib/firebase";
+import { Link } from "wouter";
 import { LogIn, Mail } from "lucide-react";
 
 export default function LoginForm() {
@@ -186,6 +187,13 @@ export default function LoginForm() {
               </form>
             </TabsContent>
           </Tabs>
+
+          <div className="text-center text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link href="/signup" className="text-blue-600 hover:underline">
+              Sign up here
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

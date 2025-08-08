@@ -22,25 +22,36 @@ export const COLLECTIONS = {
   AVAILABILITY: "availability"
 };
 
-// User operations
+// User operations with enhanced profile data
+interface UserProfile {
+  uid: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  age?: number;
+  gender?: string;
+  address?: string;
+  phone?: string;
+  createdAt: Date;
+}
+
 export const userService = {
-  async create(userId: string, userData: any) {
-    const userRef = doc(db, COLLECTIONS.USERS, userId);
-    await updateDoc(userRef, {
+  async getByUid(uid: string) {
+    const usersRef = collection(db, COLLECTIONS.USERS);
+    const q = query(usersRef, where("uid", "==", uid));
+    const usersSnap = await getDocs(q);
+    return usersSnap.docs.length > 0 ? { id: usersSnap.docs[0].id, ...usersSnap.docs[0].data() } : null;
+  },
+
+  async create(userData: UserProfile) {
+    const usersRef = collection(db, COLLECTIONS.USERS);
+    return await addDoc(usersRef, {
       ...userData,
       createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
     });
-    return userRef;
   },
 
-  async get(userId: string) {
-    const userRef = doc(db, COLLECTIONS.USERS, userId);
-    const userSnap = await getDoc(userRef);
-    return userSnap.exists() ? { id: userSnap.id, ...userSnap.data() } : null;
-  },
-
-  async update(userId: string, userData: any) {
+  async update(userId: string, userData: Partial<UserProfile>) {
     const userRef = doc(db, COLLECTIONS.USERS, userId);
     await updateDoc(userRef, {
       ...userData,
@@ -133,3 +144,4 @@ export const availabilityService = {
     return availabilitySnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 };
+
