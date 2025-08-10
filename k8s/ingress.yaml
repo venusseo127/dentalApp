@@ -4,7 +4,7 @@ metadata:
   name: smilecare-dental-ingress
   namespace: smilecare-dental
   annotations:
-    kubernetes.io/spec.ingressClassName: nginx
+    kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
@@ -12,10 +12,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - dentalcare.com
+    - 10.100.91.39.nip.io
     secretName: smilecare-tls
   rules:
-  - host: dentalcare.com
+  - host: 10.100.91.39.nip.io
     http:
       paths:
       - path: /
