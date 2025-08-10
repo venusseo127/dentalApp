@@ -12,10 +12,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - your-domain.com
+    - dentalcare.com
     secretName: smilecare-tls
   rules:
-  - host: your-domain.com
+  - host: dentalcare.com
     http:
       paths:
       - path: /
