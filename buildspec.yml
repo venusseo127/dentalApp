@@ -1,28 +1,38 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_DEFAULT_REGION: ap-southeast-2
+    ECR_REPOSITORY: smilecare-dental
+    CLUSTER_NAME: smilecare-dental-cluster
+    NAMESPACE: smilecare
+    DEPLOYMENT_NAME: deployment-smilecare
+
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 824826126253.dkr.ecr.ap-southeast-2.amazonaws.com
-      - REPOSITORY_URI=824826126253.dkr.ecr.ap-southeast-2.amazonaws.com/smilecare-dental
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 824826126253.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI=824826126253.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - echo Image tag set to $IMAGE_TAG
 
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
-      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
-
+      
   post_build:
     commands:
+      - echo Build completed on `date`
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - docker push $REPOSITORY_URI:latest
       - echo Updating Kubernetes deployment...
-      - aws eks update-kubeconfig --region ap-southeast-2 --name smilecare-cluster
-      - kubectl set image deployment/smilecare-deployment smilecare-dental=$REPOSITORY_URI:$IMAGE_TAG -n smilecare
+      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $CLUSTER_NAME
+      - kubectl set image deployment/$DEPLOYMENT_NAME smilecare=$REPOSITORY_URI:$IMAGE_TAG -n $NAMESPACE
+      - kubectl rollout status deployment/$DEPLOYMENT_NAME -n $NAMESPACE
+
 artifacts:
-  files: '**/*'
+  files:
+    - '**/*'
