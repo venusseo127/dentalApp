@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smilecare-dental
+  namespace: smilecare-dental
+  labels:
+    app: smilecare-dental
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: smilecare-dental
+  template:
+    metadata:
+      labels:
+        app: smilecare-dental
+    spec:
+      containers:
+      - name: smilecare-dental
+        image: <account-id>.dkr.ecr.us-west-2.amazonaws.com/smilecare-dental:latest
+        ports:
+        - containerPort: 5000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: smilecare-config
+        - secretRef:
+            name: smilecare-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
