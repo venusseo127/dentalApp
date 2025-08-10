@@ -102,11 +102,12 @@ export default function SignupForm() {
         email: formData.email,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        age: formData.age ? parseInt(formData.age) : undefined,
-        gender: formData.gender || undefined,
-        address: formData.address || undefined,
-        phone: formData.phone || undefined,
-        createdAt: new Date(),
+        phone: formData.phone,
+        gender:formData.gender,
+        age:formData.age,
+        address:formData.address,
+        profileImageUrl:'',
+        role: "patient",
       });
 
       toast({
@@ -114,7 +115,7 @@ export default function SignupForm() {
         description: "Welcome to our dental clinic scheduling system",
       });
       
-      setLocation("/");
+      setLocation("/dashboard");
     } catch (error: any) {
       console.error("Email signup error:", error);
       toast({
@@ -138,7 +139,7 @@ export default function SignupForm() {
         email: userCredential.user.email || "",
         firstName: userCredential.user.displayName?.split(" ")[0] || "",
         lastName: userCredential.user.displayName?.split(" ").slice(1).join(" ") || "",
-        createdAt: new Date(),
+        role: "patient",
       });
 
       toast({
@@ -146,7 +147,7 @@ export default function SignupForm() {
         description: "Welcome! You can update your profile later",
       });
       
-      setLocation("/");
+      setLocation("/dashboard");
     } catch (error: any) {
       console.error("Google signup error:", error);
       if (error.code === "auth/unauthorized-domain") {

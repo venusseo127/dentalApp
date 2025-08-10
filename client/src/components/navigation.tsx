@@ -49,7 +49,12 @@ export default function Navigation() {
 
           <div className="flex items-center space-x-4">
             {!isAuthenticated ? (
-              <LoginButton />
+              <>
+                <LoginButton />
+                <Link href="/signup" className="text-secondary-900 hover:text-primary-500 font-medium">
+                  Create Account
+                </Link>
+              </>
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -57,7 +62,7 @@ export default function Navigation() {
                     <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                       <User className="h-4 w-4 text-primary-600" />
                     </div>
-                    <span className="text-sm font-medium">{user?.displayName || user?.email}</span>
+                    <span className="text-sm font-medium">{`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email}</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>

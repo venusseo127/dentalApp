@@ -1,71 +1,78 @@
-import { sql } from 'drizzle-orm';
-import {
-  index,
-  jsonb,
-  pgTable,
-  timestamp,
-  varchar,
-  text,
-  integer,
-  decimal,
-  pgEnum,
-  date,
-  time,
-  boolean,
-} from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
-
-// User storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
-  phone: varchar("phone"),
-  role: varchar("role").default("patient"), // patient, admin
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+// Customers Schema
+export const userSchema = z.object({
+  id: z.string(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  email: z.string().email(),
+  profileImageUrl: z.string().optional(),
+  phone: z.string().optional(),
+  gender: z.string().optional(),
+  age: z.string().optional(),
+  address: z.string().optional(),
+  role: z.string().default("patient"),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export const dentists = pgTable("dentists", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
-  specialization: varchar("specialization").notNull(),
-  experience: varchar("experience"),
-  imageUrl: varchar("image_url"),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+export const insertUserSchema = userSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
-export const services = pgTable("services", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
-  description: text("description"),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  duration: integer("duration").notNull(), // duration in minutes
-  category: varchar("category").notNull(), // general, cosmetic, orthodontic
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
+export type User = z.infer<typeof userSchema>;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+
+// Dentist Schema
+export const dentistSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  specialization: z.string().optional(),
+  experience: z.string().optional(),
+  imageUrl: z.string().optional(),
+  isActive: z.boolean().default(true),
+  isAvailable: z.boolean().default(true),
+  rating: z.number().optional(),
+  reviewCount: z.number().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export const appointmentStatusEnum = pgEnum("appointment_status", [
+export const insertDentistSchema = dentistSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Dentist = z.infer<typeof dentistSchema>;
+export type InsertDentist = z.infer<typeof insertDentistSchema>;
+
+// Services Schema
+export const serviceSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  price: z.string(),
+  duration: z.number(), // duration in minutes
+  category: z.string().optional(),
+  isActive: z.boolean().default(true),
+  createdAt: z.date(),
+});
+
+export const insertServiceSchema = serviceSchema.omit({
+  id: true,
+  createdAt: true,
+});
+
+export type Service = z.infer<typeof serviceSchema>;
+export type InsertService = z.infer<typeof insertServiceSchema>;
+
+// Appointment Schema
+export const appointmentStatusEnum = z.enum([
   "scheduled",
   "confirmed",
   "cancelled",
@@ -73,108 +80,56 @@ export const appointmentStatusEnum = pgEnum("appointment_status", [
   "no_show"
 ]);
 
-export const appointments = pgTable("appointments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  dentistId: varchar("dentist_id").notNull().references(() => dentists.id),
-  serviceId: varchar("service_id").notNull().references(() => services.id),
-  appointmentDate: date("appointment_date").notNull(),
-  appointmentTime: time("appointment_time").notNull(),
-  status: appointmentStatusEnum("status").default("scheduled"),
-  notes: text("notes"),
-  totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+export const appointmentSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  userFirstname: z.string().optional(),
+  userEmail:z.string().email(),
+  userPhone: z.string().optional(),
+  dentistId: z.string(),
+  dentistName: z.string(),
+  dentistPhone: z.string().optional(),
+  dentistSpecialization: z.string(),
+  serviceId: z.string(),
+  serviceName: z.string(),
+  servicePrice: z.string(),
+  serviceDuration: z.number(),
+  serviceDescription: z.string(),
+  appointmentDate: z.string(), // Store as ISO string for Firestore
+  appointmentTime: z.string(), // Store as ISO string for Firestore
+  status: appointmentStatusEnum.default("scheduled"),
+  notes: z.string().optional(),
+  totalCost: z.number().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export const availability = pgTable("availability", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  dentistId: varchar("dentist_id").notNull().references(() => dentists.id),
-  date: date("date").notNull(),
-  startTime: time("start_time").notNull(),
-  endTime: time("end_time").notNull(),
-  isAvailable: boolean("is_available").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Relations
-export const usersRelations = relations(users, ({ many }) => ({
-  appointments: many(appointments),
-}));
-
-export const dentistsRelations = relations(dentists, ({ many }) => ({
-  appointments: many(appointments),
-  availability: many(availability),
-}));
-
-export const servicesRelations = relations(services, ({ many }) => ({
-  appointments: many(appointments),
-}));
-
-export const appointmentsRelations = relations(appointments, ({ one }) => ({
-  user: one(users, {
-    fields: [appointments.userId],
-    references: [users.id],
-  }),
-  dentist: one(dentists, {
-    fields: [appointments.dentistId],
-    references: [dentists.id],
-  }),
-  service: one(services, {
-    fields: [appointments.serviceId],
-    references: [services.id],
-  }),
-}));
-
-export const availabilityRelations = relations(availability, ({ one }) => ({
-  dentist: one(dentists, {
-    fields: [availability.dentistId],
-    references: [dentists.id],
-  }),
-}));
-
-// Insert schemas
-export const insertUserSchema = createInsertSchema(users).pick({
-  email: true,
-  firstName: true,
-  lastName: true,
-  profileImageUrl: true,
-  phone: true,
-  role: true,
-});
-
-export const insertDentistSchema = createInsertSchema(dentists).omit({
+export const insertAppointmentSchema = appointmentSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const insertServiceSchema = createInsertSchema(services).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertAppointmentSchema = createInsertSchema(appointments).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertAvailabilitySchema = createInsertSchema(availability).omit({
-  id: true,
-  createdAt: true,
-});
-
-// Types
-export type UpsertUser = typeof users.$inferInsert;
-export type User = typeof users.$inferSelect;
-export type Dentist = typeof dentists.$inferSelect;
-export type InsertDentist = z.infer<typeof insertDentistSchema>;
-export type Service = typeof services.$inferSelect;
-export type InsertService = z.infer<typeof insertServiceSchema>;
-export type Appointment = typeof appointments.$inferSelect;
+export type Appointment = z.infer<typeof appointmentSchema>;
 export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
-export type Availability = typeof availability.$inferSelect;
+
+// Availability Schema
+export const availabilitySchema = z.object({
+  id: z.string(),
+  dentistId: z.string(),
+  date: z.string(), // Store as ISO date string
+  startTime: z.string(), // Store as time string (HH:mm)
+  endTime: z.string(), // Store as time string (HH:mm)
+  isAvailable: z.boolean().default(true),
+  createdAt: z.date(),
+});
+
+export const insertAvailabilitySchema = availabilitySchema.omit({
+  id: true,
+  createdAt: true,
+});
+
+export type Availability = z.infer<typeof availabilitySchema>;
 export type InsertAvailability = z.infer<typeof insertAvailabilitySchema>;
 
 // Extended types for API responses
@@ -187,3 +142,76 @@ export type AppointmentWithDetails = Appointment & {
 export type DentistWithAvailability = Dentist & {
   availability: Availability[];
 };
+
+// Firebase document interfaces for Firestore conversion
+export interface FirebaseUser {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  profileImageUrl?: string;
+  phone?: string;
+  role?: string;
+  age?: string;
+  gender?: string;
+  address?: string;
+  createdAt?: any; // Firestore Timestamp
+  updatedAt?: any; // Firestore Timestamp
+}
+
+export interface FirebaseDentist {
+  id?: string;
+  name: string;
+  specialization?: string;
+  experience?: string;
+  imageUrl?: string;
+  isActive?: boolean;
+  phone?:string;
+  createdAt?: any; // Firestore Timestamp
+  updatedAt?: any; // Firestore Timestamp
+}
+
+export interface FirebaseService {
+  id?: string;
+  name: string;
+  description: string;
+  price: string;
+  duration: number;
+  category?: string;
+  isActive?: boolean;
+  createdAt?: any; // Firestore Timestamp
+}
+
+export interface FirebaseAppointment {
+  id?: string;
+  userId: string;
+  userFirstname?: string;
+  userEmail: string;
+  userPhone?: string;
+  dentistId: string;
+  serviceId: string;
+  serviceName: string;
+  servicePrice: string;
+  serviceDuration: number;
+  serviceDescription: string;
+  dentistName: string,
+  dentistPhone?: string,
+  dentistSpecialization: string,
+  appointmentDate: string;
+  appointmentTime: string;
+  status?: string;
+  notes?: string;
+  totalCost?: number;
+  createdAt?: any; // Firestore Timestamp
+  updatedAt?: any; // Firestore Timestamp
+}
+
+export interface FirebaseAvailability {
+  id?: string;
+  dentistId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  isAvailable?: boolean;
+  createdAt?: any; // Firestore Timestamp
+}

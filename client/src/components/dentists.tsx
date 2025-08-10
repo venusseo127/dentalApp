@@ -15,7 +15,7 @@ const dentists = [
     name: "Dr. Emily Rodriguez",
     specialization: "Orthodontics",
     experience: "10+ years experience",
-    image: "https://pixabay.com/get/ge0de4255df96378bc8e5227848dae53b41f53c044f97493b606e8ecba521c59eca18b83d7c31f4537ad941012149e5ac4999e191eb6f65b2be4d5684a60cd1e1_1280.jpg"
+    image: "https://images.unsplash.com/photo-1623854767276-5025b88735d3?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   }
 ];
 

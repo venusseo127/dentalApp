@@ -16,20 +16,23 @@ interface ConfirmationProps {
   onNotesChange: (notes: string) => void;
 }
 
-export default function Confirmation({ bookingData, onNotesChange }: ConfirmationProps) {
+export default function Confirmation({
+  bookingData,
+  onNotesChange,
+}: ConfirmationProps) {
   const { data: services = [] } = useQuery<Service[]>({
     queryKey: ["services"],
     queryFn: async () => {
-      const { serviceService } = await import("@/lib/firestore");
-      return await serviceService.getAll();
+      const { getServices } = await import("@/lib/firestore");
+      return await getServices();
     },
   });
 
   const { data: dentists = [] } = useQuery<Dentist[]>({
     queryKey: ["dentists"],
     queryFn: async () => {
-      const { dentistService } = await import("@/lib/firestore");
-      return await dentistService.getAll();
+      const { getDentists } = await import("@/lib/firestore");
+      return await getDentists();
     },
   });
 
@@ -37,19 +40,19 @@ export default function Confirmation({ bookingData, onNotesChange }: Confirmatio
   const selectedDentist = dentists.find((d) => d.id === bookingData.dentistId);
 
   const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
+    const [hours, minutes] = time.split(":");
     const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const ampm = hour >= 12 ? "PM" : "AM";
     const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -58,7 +61,7 @@ export default function Confirmation({ bookingData, onNotesChange }: Confirmatio
       <h3 className="text-xl font-semibold text-secondary-900 mb-6 text-center">
         Confirm Your Appointment
       </h3>
-      
+
       <div className="bg-gray-50 rounded-lg p-6 mb-6">
         <div className="space-y-4">
           <div className="flex justify-between">
@@ -71,22 +74,31 @@ export default function Confirmation({ bookingData, onNotesChange }: Confirmatio
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Date:</span>
-            <span className="font-medium">{formatDate(bookingData.appointmentDate)}</span>
+            <span className="font-medium">
+              {formatDate(bookingData.appointmentDate)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Time:</span>
-            <span className="font-medium">{formatTime(bookingData.appointmentTime)}</span>
+            <span className="font-medium">
+              {formatTime(bookingData.appointmentTime)}
+            </span>
           </div>
           <div className="flex justify-between border-t pt-4">
             <span className="text-gray-600">Total Cost:</span>
-            <span className="font-semibold text-lg">${selectedService?.price}</span>
+            <span className="font-semibold text-lg">
+              ${selectedService?.price}
+            </span>
           </div>
         </div>
       </div>
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="notes" className="text-sm font-medium text-secondary-900 mb-2 block">
+          <Label
+            htmlFor="notes"
+            className="text-sm font-medium text-secondary-900 mb-2 block"
+          >
             Additional Notes (Optional)
           </Label>
           <Textarea

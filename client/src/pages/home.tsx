@@ -11,13 +11,13 @@ export default function Home() {
   const { user } = useAuth();
 
   const { data: appointments = [] } = useQuery<any[]>({
-    queryKey: ["appointments", user?.uid],
+    queryKey: ["appointments", user?.id],
     queryFn: async () => {
-      if (!user?.uid) return [];
+      if (!user?.id) return [];
       const { getAppointmentsByUserId } = await import("@/lib/firestore");
-      return await getAppointmentsByUserId(user.uid);
+      return await getAppointmentsByUserId(user.id);
     },
-    enabled: !!user?.uid,
+    enabled: !!user?.id,
   });
 
   const upcomingAppointments = appointments.filter((apt) => 

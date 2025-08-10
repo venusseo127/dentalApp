@@ -8,21 +8,37 @@ import { useToast } from "@/hooks/use-toast";
 import { signInWithGoogle, signInWithEmail } from "@/lib/firebase";
 import { Link } from "wouter";
 import { LogIn, Mail } from "lucide-react";
+import { useLocation } from "wouter";
+import { createUser } from "@/lib/firestore";
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   const handleGoogleLogin = async () => {
     try {
       setIsLoading(true);
-      await signInWithGoogle();
+      const userCredential = await signInWithGoogle();
+      
+      console.log("userCredential",userCredential)
+      // Store basic user data in Firestore for Google users
+      await createUser({
+        uid: userCredential.user.uid,
+        email: userCredential.user.email || "",
+        firstName: userCredential.user.displayName?.split(" ")[0] || "",
+        lastName: userCredential.user.displayName?.split(" ").slice(1).join(" ") || "",
+        profileImageUrl: userCredential.user.photoURL || "",
+        phone: userCredential.user.phoneNumber || "",
+        role: "patient",
+      });
       toast({
         title: "Success",
         description: "Logged in successfully with Google!",
       });
+      setLocation("/dashboard");
     } catch (error: any) {
       console.error("Google login error:", error);
       if (error.code === "auth/unauthorized-domain") {
@@ -54,6 +70,7 @@ export default function LoginForm() {
         title: "Success",
         description: "Logged in successfully!",
       });
+      setLocation("/dashboard");
     } catch (error: any) {
       console.error("Email login error:", error);
       toast({

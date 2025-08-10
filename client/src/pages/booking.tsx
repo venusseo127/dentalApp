@@ -21,6 +21,13 @@ interface BookingData {
   appointmentDate: string;
   appointmentTime: string;
   notes?: string;
+  serviceName: string;
+  servicePrice: string;
+  serviceDuration: number;
+  serviceDescription: string;
+  dentistName: string,
+  dentistPhone: string,
+  dentistSpecialization: string
 }
 
 export default function Booking() {
@@ -34,15 +41,26 @@ export default function Booking() {
     dentistId: "",
     appointmentDate: "",
     appointmentTime: "",
-  });
+    serviceName: "",
+    servicePrice: "",
+    serviceDuration: 0,
+    serviceDescription: "",
+    dentistName: "",
+    dentistPhone: "",
+    dentistSpecialization: ""
 
+  });
+  //console.log(user)
   const createAppointmentMutation = useMutation({
     mutationFn: async (data: BookingData) => {
-      if (!user?.uid) throw new Error("User not authenticated");
+      if (!user?.id) throw new Error("User not authenticated");
       const { createAppointment } = await import("@/lib/firestore");
       return await createAppointment({
         ...data,
-        userId: user.uid,
+        userId: user.id,
+        userFirstname: user.firstName,
+        userEmail: user.email,
+        userPhone: user.phone || '',
         status: "scheduled",
       });
     },
@@ -124,7 +142,25 @@ export default function Booking() {
   const updateBookingData = (updates: Partial<BookingData>) => {
     setBookingData(prev => ({ ...prev, ...updates }));
   };
-
+  const [selectedDentistId, setSelectedDentistId] = useState("");
+  const [selectedServiceId, setSelectedServiceId] = useState("");
+  //const [selectedDentistDetails, setSelectedDentistDetails] = useState<any>(null);
+  const handleDentistSelect = (dentist: any) => {
+    console.log(dentist)
+    setSelectedDentistId(dentist.id);
+    updateBookingData({ dentistId:dentist.id })
+    updateBookingData({ dentistName:dentist.name })
+    updateBookingData({ dentistPhone:dentist.phone })
+    updateBookingData({ dentistSpecialization:dentist.specialization })
+  };
+  const handleServiceSelect = (service: any) => {
+    setSelectedServiceId(service.id);
+    updateBookingData({ serviceId:service.id })
+    updateBookingData({ serviceName:service.name })
+    updateBookingData({ servicePrice:service.price })
+    updateBookingData({ serviceDuration:service.duration })
+    updateBookingData({ serviceDescription:service.description })
+  };
   return (
     <div className="min-h-screen bg-secondary-50">
       <Navigation />
@@ -146,12 +182,12 @@ export default function Booking() {
             {currentStep === 1 && (
               <div className="grid lg:grid-cols-2 gap-8">
                 <ServiceSelection
-                  selectedServiceId={bookingData.serviceId}
-                  onServiceSelect={(serviceId) => updateBookingData({ serviceId })}
+                  selectedServiceId={selectedServiceId}
+                  onServiceSelect={handleServiceSelect}
                 />
                 <DentistSelection
-                  selectedDentistId={bookingData.dentistId}
-                  onDentistSelect={(dentistId) => updateBookingData({ dentistId })}
+                  selectedDentistId={selectedDentistId}
+                  onDentistSelect={handleDentistSelect}
                 />
               </div>
             )}
