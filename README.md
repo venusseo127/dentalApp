@@ -1,6 +1,6 @@
 # SmileCare Dental Scheduling System
 
-A comprehensive web-based dental office appointment scheduling system that enables patients to book, manage, and view dental appointments online while providing clinic staff with tools to manage dentist availability and oversee all scheduled appointments.
+A comprehensive web-based dental office appointment scheduling system that enables patients to book, manage, and view dental appointments online.
 
 ## 🦷 Features
 
@@ -20,25 +20,7 @@ A comprehensive web-based dental office appointment scheduling system that enabl
 - **Profile Management**
   - Update personal information
   - View appointment history
-  - Manage contact preferences
-  - Change password
 
-### For Admin Staff
-- **Appointment Management**
-  - View all appointments across the clinic
-  - Update appointment status and notes
-  - Schedule appointments for patients
-  - Handle cancellations and rescheduling
-
-- **Dentist Management**
-  - Add and edit dentist profiles
-  - Manage specializations and availability
-  - Set working hours and schedules
-
-- **Service Management**
-  - Create and update dental services
-  - Set service duration and pricing
-  - Organize services by categories
 
 ## 🚀 Technology Stack
 
@@ -74,7 +56,7 @@ A comprehensive web-based dental office appointment scheduling system that enabl
 ### 1. Clone the Repository
 ```bash
 git clone <repository-url>
-cd smilecare-dental-scheduling
+cd dentaldesk
 ```
 
 ### 2. Install Dependencies
@@ -113,19 +95,15 @@ The application will be available at `http://localhost:5000`
 ## 🏗️ Project Structure
 
 ```
-smilecare-dental-scheduling/
+dentaldesk/
 ├── client/                 # React frontend
 │   ├── src/
 │   │   ├── components/     # Reusable UI components
 │   │   ├── pages/          # Page components
 │   │   ├── hooks/          # Custom React hooks
 │   │   ├── lib/            # Utility functions
-│   │   └── firebase-config.ts
-├── server/                 # Express.js backend
-│   ├── routes.ts          # API routes
-│   ├── firebase-config.ts # Firebase Admin setup
-│   ├── firebase-storage.ts # Database operations
-│   └── index.ts           # Server entry point
+|           |___firebase.ts # Firebase  setup
+|           |___firestore.ts # Firestore  setup
 ├── shared/                # Shared types and schemas
 ├── docs/                  # Documentation
 ├── k8s/                   # Kubernetes deployment files

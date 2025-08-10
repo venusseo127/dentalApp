@@ -61,13 +61,32 @@ sudo mv /tmp/eksctl /usr/local/bin
 # Create EKS cluster
 eksctl create cluster \
   --name smilecare-dental \
-  --region us-west-2 \
+  --region ap-southeast-2 \
   --nodegroup-name workers \
   --node-type t3.medium \
   --nodes 2 \
   --nodes-min 1 \
   --nodes-max 4
 ```
+powershell command
+eksctl create cluster `
+  --name smilecare-dental `
+  --region ap-southeast-2 `
+  --nodegroup-name workers `
+  --node-type t3.medium `
+  --nodes 2 `
+  --nodes-min 1 `
+  --nodes-max 4
+
+eksctl create cluster --name smilecare-dental-cluster --region ap-southeast-2 --fargate
+aws eks update-kubeconfig --name smilecare-dental-cluster --region ap-southeast-2
+eksctl create fargateprofile \
+    --cluster smilecare-dental-cluster \
+    --region ap-southeast-2 \
+    --name alb-dental-app \
+    --namespace smilecare
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/examples/2048/2048_full.yaml
 
 ### 2. Create ECR Repository
 
