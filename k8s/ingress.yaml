@@ -4,24 +4,17 @@ metadata:
   name: smilecare-dental-ingress
   namespace: smilecare-dental
   annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
 spec:
-  tls:
-  - hosts:
-    - 10.100.91.39.nip.io
-    secretName: smilecare-tls
+  ingressClassName: alb
   rules:
-  - host: 10.100.91.39.nip.io
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: smilecare-dental-service
-            port:
-              number: 80
+    - http:                     # ✅ list item with "-"
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: smilecare-dental-service
+                port:
+                  number: 80    # ✅ no decimal

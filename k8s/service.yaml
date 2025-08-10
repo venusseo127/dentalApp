@@ -6,11 +6,10 @@ metadata:
   labels:
     app: smilecare-dental
 spec:
+  type: NodePort
   selector:
     app: smilecare-dental
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 5000
-    name: http
-  type: ClusterIP
+    - port: 80
+      targetPort: 5000
+      protocol: TCP

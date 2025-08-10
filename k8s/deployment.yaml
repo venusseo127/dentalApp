@@ -15,6 +15,11 @@ spec:
       labels:
         app: smilecare-dental
     spec:
+      tolerations:
+       - key: "dedicated"
+         operator: "Equal"
+         value: "database"
+         effect: "NoSchedule"
       containers:
       - name: smilecare-dental
         image: <account-id>.dkr.ecr.us-west-2.amazonaws.com/smilecare-dental:latest
