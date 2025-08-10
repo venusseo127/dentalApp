@@ -77,13 +77,18 @@ eksctl create cluster `
   --nodes 2 `
   --nodes-min 1 `
   --nodes-max 4
+  # Create ECR repository
+aws ecr create-repository --repository-name smilecare-dental --region ap-southeast-2 
+# Get login token
+aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin <accountid>.dkr.ecr.us-west-2.amazonaws.com
 
+# fargate
 eksctl create cluster --name smilecare-dental-cluster --region ap-southeast-2 --fargate
 aws eks update-kubeconfig --name smilecare-dental-cluster --region ap-southeast-2
-eksctl create fargateprofile \
-    --cluster smilecare-dental-cluster \
-    --region ap-southeast-2 \
-    --name alb-dental-app \
+eksctl create fargateprofile `
+    --cluster smilecare-dental-cluster `
+    --region ap-southeast-2 `
+    --name alb-dental-app `
     --namespace smilecare
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/examples/2048/2048_full.yaml

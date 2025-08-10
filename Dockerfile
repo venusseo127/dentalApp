@@ -5,12 +5,14 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install
+#RUN npm ci --only=production
 
 # Copy source code
 COPY . .
 
 # Build the application
+ENV NODE_ENV=production
 RUN npm run build
 
 # Production stage

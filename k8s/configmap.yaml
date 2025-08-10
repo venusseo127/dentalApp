@@ -6,7 +6,7 @@ metadata:
 data:
   NODE_ENV: "production"
   PORT: "5000"
-  FIREBASE_PROJECT_ID: "your-project-id"
-  VITE_FIREBASE_AUTH_DOMAIN: "your-project-id.firebaseapp.com"
-  VITE_FIREBASE_PROJECT_ID: "your-project-id"
-  VITE_FIREBASE_STORAGE_BUCKET: "your-project-id.appspot.com"
+  FIREBASE_PROJECT_ID: "dentalapp-23014"
+  VITE_FIREBASE_AUTH_DOMAIN: "dentalapp-23014.firebaseapp.com"
+  VITE_FIREBASE_PROJECT_ID: "dentalapp-23014"
+  VITE_FIREBASE_STORAGE_BUCKET: "dentalapp-23014.firebasestorage.app"

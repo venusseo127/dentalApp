@@ -1,0 +1,134 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smilecare-dental
+data:
+  NODE_ENV: "production"
+  PORT: "5000"
+  FIREBASE_PROJECT_ID: "dentalapp-23014"
+  VITE_FIREBASE_AUTH_DOMAIN: "dentalapp-23014.firebaseapp.com"
+  VITE_FIREBASE_PROJECT_ID: "dentalapp-23014"
+  VITE_FIREBASE_STORAGE_BUCKET: "dentalapp-23014.firebasestorage.app"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: smilecare-secrets
+  namespace: smilecare-dental
+type: Opaque
+data:
+  # Base64 encoded values - replace with your actual encoded values
+  VITE_FIREBASE_API_KEY: "AIzaSyDoyOXvWRAWox9wpBJ6CJwCfJy6C2GfBGY"
+  VITE_FIREBASE_APP_ID: "1:1074134698352:web:4d64bdbd960c52ca8ea7b5"
+  VITE_FIREBASE_MESSAGING_SENDER_ID: "1074134698352"
+  # To encode values, use: echo -n "your-value" | base64
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: smilecare-dental
+  name: smilecare-dental
+  labels:
+    app: smilecare-dental
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: smilecare-dental
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: smilecare-dental
+    spec:
+      containers:
+      - image: public.ecr.aws/l6m2t8p7/docker-2048:latest
+        imagePullPolicy: Always
+        name: smilecare-dental
+        ports:
+        - containerPort: 5000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: smilecare-config
+        - secretRef:
+            name: smilecare-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: smilecare-dental
+  name: smilecare-dental-service
+  labels:
+    app: smilecare-dental
+spec:
+  ports:
+    - port: 80
+      targetPort: 5000
+      protocol: TCP
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: smilecare-dental
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: smilecare-dental
+  name: smilecare-dental-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+tls:
+  - hosts:
+    - your-domain.com
+    secretName: smilecare-tls
+ingressClassName: alb
+rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: smilecare-dental-service
+            port:
+              number: 80
