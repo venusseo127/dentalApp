@@ -17,7 +17,7 @@ export default function Hero() {
             Book your dental appointment online with our experienced team. Quality care, convenient scheduling.
           </p>
           <Button 
-            onClick={() => window.location.href = "/api/login"}
+            onClick={() => window.location.href = "/login"}
             className="bg-white text-primary-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-50 transition-colors shadow-lg"
             size="lg"
           >

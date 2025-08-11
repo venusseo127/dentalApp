@@ -45,6 +45,18 @@ export default function Navigation() {
                 </div>
               </div>
             )}
+            {!isAuthenticated && (
+              <div className="hidden md:block ml-10">
+                <div className="flex space-x-8">
+                  <Link href="/" className="text-secondary-900 hover:text-primary-500 font-medium">
+                    Home
+                  </Link>
+                  <Link href="/about" className="text-secondary-900 hover:text-primary-500 font-medium">
+                    About Us
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center space-x-4">

@@ -12,26 +12,29 @@ import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
+import About from "@/pages/about";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
-    <Switch>
-      <Route path="/login" component={Login} />
-      <Route path="/signup" component={Signup} />
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/booking" component={Booking} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/admin" component={Admin} />
-        </>
-      )}
-      <Route component={NotFound} />
-    </Switch>
+      <Switch>
+        <Route path="/login" component={Login} />
+        <Route path="/signup" component={Signup} />
+        <Route path="/booking" component={Booking} />
+        <Route path="/about" component={About} />
+        {isLoading || !isAuthenticated ? (
+          <Route path="/" component={Landing} />
+        ) : (
+          <>
+            <Route path="/" component={Home} />
+            <Route path="/booking" component={Booking} />
+            <Route path="/dashboard" component={Dashboard} />
+            <Route path="/admin" component={Admin} />
+          </>
+        )}
+        {/* <Route component={NotFound} /> */}
+      </Switch>
   );
 }
 
