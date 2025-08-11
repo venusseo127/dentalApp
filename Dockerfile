@@ -5,15 +5,13 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm install
-#RUN npm ci --only=production
+RUN npm ci --only=production
 
 # Copy source code
 COPY . .
 
 # Build the application
-ENV NODE_ENV=production
-RUN npm run build
+RUN vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/server.js
 
 # Production stage
 FROM node:18-alpine AS production
@@ -27,6 +25,10 @@ RUN apk add --no-cache dumb-init
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+
+# Set production environment
+ENV NODE_ENV=production
+ENV PORT=5000
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
@@ -51,4 +53,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 # Start the application
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]
