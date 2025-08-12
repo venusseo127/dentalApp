@@ -20,7 +20,7 @@ spec:
         app.kubernetes.io/name: smilecare
     spec:
       containers:
-      - image: ghcr.io/venusseo127/dentalApp:latest
+      - image: ghcr.io/venusseo127/dentalapp:latest
         imagePullPolicy: Always
         name: smilecare
         ports:
