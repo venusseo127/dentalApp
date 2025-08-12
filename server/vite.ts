@@ -31,7 +31,8 @@ export async function setupVite(app: Express, server: Server) {
 
   const vite = await createViteServer({
     ...viteConfig,
-    configFile: false,
+    root: path.resolve(__dirname, "..", "client"),
+    //configFile: false,
     customLogger: {
       ...viteLogger,
       error: (msg, options) => {
@@ -68,6 +69,7 @@ export async function setupVite(app: Express, server: Server) {
       next(e);
     }
   });
+  console.log("Serving vite with root:", vite.config.root);
 }
 
 export function serveStatic(app: Express) {

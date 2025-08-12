@@ -10,21 +10,34 @@ import { Link } from "wouter";
 import { LogIn, Mail } from "lucide-react";
 import { useLocation } from "wouter";
 import { createUser } from "@/lib/firestore";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 export default function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLogin, setisLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { isAuthenticated, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
+
+    useEffect(() => {
+      if (!isLoading && isAuthenticated ) {
+        // If user is authenticated and on login page, redirect to dashboard
+        setLocation("/dashboard");
+      }
+    }, [isAuthenticated, isLoading, setLocation]);
+    
+    if (isLoading) {
+      // Optional: show a loading spinner or blank while auth is loading
+      return <div>Loading...</div>;
+    }
 
   const handleGoogleLogin = async () => {
     try {
-      setIsLoading(true);
+      setisLogin(true);
       const userCredential = await signInWithGoogle();
-      
-      console.log("userCredential",userCredential)
-      // Store basic user data in Firestore for Google users
+
       await createUser({
         uid: userCredential.user.uid,
         email: userCredential.user.email || "",
@@ -34,28 +47,21 @@ export default function LoginForm() {
         phone: userCredential.user.phoneNumber || "",
         role: "patient",
       });
+
       toast({
         title: "Success",
         description: "Logged in successfully with Google!",
       });
-      setLocation("/dashboard");
+
+      // Remove this line:
+      // setLocation("/dashboard");
+      
+      // Instead rely on Router's useEffect to redirect when auth state updates
+
     } catch (error: any) {
-      console.error("Google login error:", error);
-      if (error.code === "auth/unauthorized-domain") {
-        toast({
-          title: "Domain Not Authorized",
-          description: "Please configure this domain in Firebase Console under Authentication > Settings > Authorized domains",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Login Failed", 
-          description: error.message || "Failed to sign in with Google",
-          variant: "destructive",
-        });
-      }
+      // handle errors
     } finally {
-      setIsLoading(false);
+      setisLogin(false);
     }
   };
 
@@ -64,7 +70,7 @@ export default function LoginForm() {
     if (!email || !password) return;
 
     try {
-      setIsLoading(true);
+      setisLogin(true);
       await signInWithEmail(email, password);
       toast({
         title: "Success",
@@ -79,7 +85,7 @@ export default function LoginForm() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setisLogin(false);
     }
   };
 
@@ -96,12 +102,12 @@ export default function LoginForm() {
           {/* Google Login Button */}
           <Button
             onClick={handleGoogleLogin}
-            disabled={isLoading}
+            disabled={isLogin}
             className="w-full"
             variant="outline"
           >
             <LogIn className="mr-2 h-4 w-4" />
-            {isLoading ? "Signing in..." : "Continue with Google"}
+            {isLogin ? "Signing in..." : "Continue with Google"}
           </Button>
 
           <div className="relative">
@@ -137,9 +143,9 @@ export default function LoginForm() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLogin}>
               <Mail className="mr-2 h-4 w-4" />
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLogin ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 

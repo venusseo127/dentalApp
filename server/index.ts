@@ -50,16 +50,17 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  // if (app.get("env") === "development") {
-  //   await setupVite(app, server);
-  // } else {
-  //   serveStatic(app);
-  // }
-  if (process.env.NODE_ENV === "development") {
+  if (app.get("env") === "development") {
+    console.log("run dev on index")
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
+  // if (process.env.NODE_ENV === "development") {
+  //   await setupVite(app, server);
+  // } else {
+  //   serveStatic(app);
+  // }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.

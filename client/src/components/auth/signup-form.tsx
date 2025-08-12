@@ -115,7 +115,7 @@ export default function SignupForm() {
         description: "Welcome to our dental clinic scheduling system",
       });
       
-      setLocation("/dashboard");
+      setLocation("/login");
     } catch (error: any) {
       console.error("Email signup error:", error);
       toast({
