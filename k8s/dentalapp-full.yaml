@@ -48,11 +48,9 @@ metadata:
   namespace: smilecare
   name: ingress-smilecare
   annotations:
-     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-2:ACCOUNT_ID:certificate/CERTIFICATE_ID
-     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-     alb.ingress.kubernetes.io/scheme: internet-facing
-     alb.ingress.kubernetes.io/target-type: ip
-     kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    kubernetes.io/ingress.class: alb
 spec:
   ingressClassName: alb
   rules:
