@@ -148,7 +148,8 @@ npm run dev
 
 **Docker:**
 ```bash
-docker build -t dentaldesk:latest
+   docker build -t dentaldesk:latest
+docker buildx build -t dentaldesk:latest 
 docker run -p 5000:5000 dentaldesk
 ```
 
