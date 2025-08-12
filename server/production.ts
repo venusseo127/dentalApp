@@ -7,6 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Logging helper
 function log(message: string) {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -17,30 +18,27 @@ function log(message: string) {
   console.log(`${formattedTime} [express] ${message}`);
 }
 
-// Logging middleware
+// API request logging
 app.use((req, res, next) => {
   const start = Date.now();
-  const reqPath = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  let capturedJson: any;
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
+  const originalJson = res.json;
+  res.json = function (body, ...args) {
+    capturedJson = body;
+    return originalJson.apply(res, [body, ...args]);
   };
 
   res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (reqPath.startsWith("/api")) {
-      let logLine = `${req.method} ${reqPath} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+    if (req.path.startsWith("/api")) {
+      const duration = Date.now() - start;
+      let logLine = `${req.method} ${req.path} ${res.statusCode} in ${duration}ms`;
+      if (capturedJson) {
+        logLine += ` :: ${JSON.stringify(capturedJson)}`;
       }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
+      if (logLine.length > 100) {
+        logLine = logLine.slice(0, 99) + "…";
       }
-
       log(logLine);
     }
   });
@@ -48,56 +46,48 @@ app.use((req, res, next) => {
   next();
 });
 
-// Production static file serving
-function serveStatic(app: express.Express) {
+// Serve static files for production
+function serveStaticFiles(app: express.Express) {
   const distPath = path.resolve(process.cwd(), "dist", "public");
-  
+
   if (!fs.existsSync(distPath)) {
     throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`
+      `❌ Could not find build directory: ${distPath}. Run "npm run build" first.`
     );
   }
 
-  // Serve static files
+  // Serve all static assets
   app.use(express.static(distPath));
 
-  // Serve index.html for all non-API routes (SPA fallback)
+  // Fallback for SPA routes (non-API)
   app.get("*", (req, res, next) => {
-    // Skip API routes
-    if (req.path.startsWith("/api")) {
-      return next();
-    }
+    if (req.path.startsWith("/api")) return next();
 
-    const indexPath = path.join(distPath, "index.html");
-    
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      res.status(404).send("Build files not found");
-    }
+    res.sendFile(path.join(distPath, "index.html"), (err) => {
+      if (err) {
+        log(`Error serving index.html: ${err.message}`);
+        res.status(500).send("Internal Server Error");
+      }
+    });
   });
 }
 
+// Start server
 (async () => {
   const server = await registerRoutes(app);
 
+  // Global error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
+    log(`❌ Error: ${message}`);
     res.status(status).json({ message });
-    throw err;
   });
 
-  // Serve static files in production
-  serveStatic(app);
+  serveStaticFiles(app);
 
   const port = parseInt(process.env.PORT || "5000", 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true
-  }, () => {
-    log(`serving on port ${port}`);
+  server.listen(port, "0.0.0.0", () => {
+    log(`✅ Server running on port ${port}`);
   });
 })();

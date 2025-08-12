@@ -1,23 +1,26 @@
-name: Deploy Smilecare Dental Cluster
+name: Deploy SmileCare to AWS EKS
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     env:
       AWS_REGION: ap-southeast-2
-      ECR_REPOSITORY: smilecare-dental
-      CLUSTER_NAME: alb-dental-app
-      K8S_NAMESPACE: smilecare
+      ECR_REPO: smilecare-dental
+      CLUSTER_NAME: smilecare-dental-cluster
+      DEPLOYMENT_NAME: smilecare-deployment
+      CONTAINER_NAME: smilecare
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -25,23 +28,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
+      # Log in to Amazon ECR
+      - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag, and push image to ECR
-        id: build-image
+      # Build and push Docker image
+      - name: Build, tag, and push image to Amazon ECR
         run: |
-          IMAGE_TAG=${GITHUB_SHA::7}
-          IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG
-          docker build -t $IMAGE_URI .
+          IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:latest
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+          docker build --platform linux/amd64 -t $IMAGE_URI .
           docker push $IMAGE_URI
-          echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
 
-      - name: Update kubeconfig for EKS
-        run: aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
-
-      - name: Deploy to EKS
+      # Update Kubernetes deployment on EKS
+      - name: Update Kubernetes deployment
         run: |
-         sed "s|<image>|${{ steps.build-image.outputs.image }}|g" k8s/dentalapp-full.yaml > k8s/deployment-temp.yaml
-         kubectl apply -f k8s/deployment-temp.yaml
+          aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+          kubectl set image deployment/$DEPLOYMENT_NAME $CONTAINER_NAME=$IMAGE_URI
+          kubectl rollout status deployment/$DEPLOYMENT_NAME

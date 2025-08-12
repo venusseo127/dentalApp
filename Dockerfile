@@ -20,7 +20,8 @@ RUN npx vite build && npx esbuild server/production.ts \
   --bundle \
   --format=esm \
   --outfile=dist/server.js
-
+  
+COPY --from=builder /app/dist /app/dist
 
 # Production stage
 FROM node:18-alpine AS production
