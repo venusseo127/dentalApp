@@ -20,7 +20,7 @@ spec:
         app.kubernetes.io/name: smilecare
     spec:
       containers:
-      - image: 824826126253.dkr.ecr.ap-southeast-2.amazonaws.com/smilecare-dental:latest
+      - image: <image>
         imagePullPolicy: Always
         name: smilecare
         ports:
