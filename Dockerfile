@@ -1,68 +1,57 @@
-# Multi-stage build for SmileCare Dental Scheduling System
+# ===== Stage 1: Build =====
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files first for caching
 COPY package*.json ./
-RUN npm ci --only=production
 
-# Copy source code
+# Install ALL dependencies (not just prod) for build
+RUN npm ci
+
+# Copy source code (this ensures vite.config.ts, client/, shared/, server/ are present)
 COPY . .
 
-RUN npm install @rollup/rollup-linux-x64-musl
+# Build frontend
+RUN npm run build
 
-# Build the application
-#RUN vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/server.js
-RUN npx vite build && npx esbuild server/production.ts \
+# Bundle server
+RUN npx esbuild server/production.ts \
   --platform=node \
   --packages=external \
   --bundle \
   --format=esm \
   --outfile=dist/server.js
-  
-COPY --from=builder /app/dist /app/dist
 
-# Production stage
+# ===== Stage 2: Production =====
 FROM node:18-alpine AS production
 
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
 
-# Copy built application
+# Copy compiled output + necessary runtime files
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
-# Set production environment
+# If your server needs static files:
+COPY --from=builder /app/dist/public ./dist/public
+
 ENV NODE_ENV=production
 ENV PORT=5000
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
-
-# Change ownership of the app directory
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 RUN chown -R nodejs:nodejs /app
 USER nodejs
 
-# Expose port
 EXPOSE 5000
 
-
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "const http = require('http'); \
     const options = { host: 'localhost', port: 5000, path: '/health', timeout: 2000 }; \
-    const req = http.request(options, (res) => { \
-      process.exit(res.statusCode === 200 ? 0 : 1); \
-    }); \
-    req.on('error', () => process.exit(1)); \
-    req.end();"
-    
+    const req = http.request(options, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); \
+    req.on('error', () => process.exit(1)); req.end();"
 
-# Start the application
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "dist/server.js"]
