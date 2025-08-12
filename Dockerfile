@@ -10,8 +10,17 @@ RUN npm ci --only=production
 # Copy source code
 COPY . .
 
+RUN npm install @rollup/rollup-linux-x64-musl
+
 # Build the application
-RUN vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/server.js
+#RUN vite build && esbuild server/production.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/server.js
+RUN npx vite build && npx esbuild server/production.ts \
+  --platform=node \
+  --packages=external \
+  --bundle \
+  --format=esm \
+  --outfile=dist/server.js
+
 
 # Production stage
 FROM node:18-alpine AS production
@@ -41,6 +50,7 @@ USER nodejs
 # Expose port
 EXPOSE 5000
 
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "const http = require('http'); \
@@ -50,6 +60,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     }); \
     req.on('error', () => process.exit(1)); \
     req.end();"
+    
 
 # Start the application
 ENTRYPOINT ["dumb-init", "--"]

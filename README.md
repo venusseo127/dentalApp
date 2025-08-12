@@ -148,8 +148,8 @@ npm run dev
 
 **Docker:**
 ```bash
-docker build -t smilecare-dental .
-docker run -p 5000:5000 smilecare-dental
+docker build -t dentaldesk:latest
+docker run -p 5000:5000 dentaldesk
 ```
 
 **Kubernetes on AWS:**

@@ -77,10 +77,11 @@ eksctl create cluster `
   --nodes 2 `
   --nodes-min 1 `
   --nodes-max 4
+
   # Create ECR repository
 aws ecr create-repository --repository-name smilecare-dental --region ap-southeast-2 
 # Get login token
-aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin <accountid>.dkr.ecr.us-west-2.amazonaws.com
+aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin <accountid>.dkr.ecr.ap-southeast-2.amazonaws.com
 
 # fargate
 eksctl create cluster --name smilecare-dental-cluster --region ap-southeast-2 --fargate
@@ -97,10 +98,10 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-load-bala
 
 ```bash
 # Create ECR repository
-aws ecr create-repository --repository-name smilecare-dental --region us-west-2
+aws ecr create-repository --repository-name smilecare-dental --region ap-southeast-2
 
 # Get login token
-aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-west-2.amazonaws.com
+aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.ap-southeast-2.amazonaws.com
 ```
 
 ## Application Containerization
@@ -151,10 +152,10 @@ CMD ["npm", "start"]
 docker build -t smilecare-dental .
 
 # Tag for ECR
-docker tag smilecare-dental:latest <account-id>.dkr.ecr.us-west-2.amazonaws.com/smilecare-dental:latest
+docker tag smilecare-dental:latest <account-id>.dkr.ecr.ap-southeast-2.amazonaws.com/smilecare-dental:latest
 
 # Push to ECR
-docker push <account-id>.dkr.ecr.us-west-2.amazonaws.com/smilecare-dental:latest
+docker push <account-id>.dkr.ecr.ap-southeast-2.amazonaws.com/smilecare-dental:latest
 ```
 
 ## Kubernetes Deployment
@@ -224,7 +225,7 @@ spec:
     spec:
       containers:
       - name: smilecare-dental
-        image: <account-id>.dkr.ecr.us-west-2.amazonaws.com/smilecare-dental:latest
+        image: <account-id>.dkr.ecr.ap-southeast-2.amazonaws.com/smilecare-dental:latest
         ports:
         - containerPort: 5000
         envFrom:
@@ -401,7 +402,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-west-2
+        aws-region: ap-southeast-2
     
     - name: Login to Amazon ECR
       id: login-ecr
@@ -417,7 +418,7 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
     
     - name: Update kube config
-      run: aws eks update-kubeconfig --name smilecare-dental --region us-west-2
+      run: aws eks update-kubeconfig --name smilecare-dental --region ap-southeast-2
     
     - name: Deploy to EKS
       run: |
